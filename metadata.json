@@ -1,0 +1,7 @@
+{
+  "name": "AMIGO - Pet Recovery & Community Rescue",
+  "description": "Mobile-first pet recovery and community rescue platform with AI assistance, noseprint biometrics, and lost/found alert maps.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
