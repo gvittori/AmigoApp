@@ -3,6 +3,7 @@ name: Deploy Vite App to Pages
 on:
   push:
     branches: [ main ] # or master, depending on your repo default branch
+  workflow_dispatch:
 
 permissions:
   contents: read
