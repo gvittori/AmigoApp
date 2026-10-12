@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { LostDogReport } from '../types/amigo';
-import { X, Phone, Sparkles, Copy, Check, Eye, Award, CheckCircle2, HeartHandshake } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { LostDogReport, formatReportDateTime } from '../types/amigo';
+import { X, MapPin, Sparkles, Copy, Check, Eye, Award, CheckCircle2, HeartHandshake, ZoomIn, Plus, Minus } from 'lucide-react';
 import { Button } from './ui/Button';
 
 interface DogDetailModalProps {
@@ -18,6 +18,51 @@ export const DogDetailModal: React.FC<DogDetailModalProps> = ({
   onAddSighting,
   onAwardPoints,
 }) => {
+  const [photoTab, setPhotoTab] = useState<'FACE' | 'BODY'>('FACE');
+  const [isZoomModalOpen, setIsZoomModalOpen] = useState(false);
+  const [zoomScale, setZoomScale] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (zoomScale <= 1) return;
+    isDragging.current = true;
+    dragStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current || zoomScale <= 1) return;
+    setPan({
+      x: e.clientX - dragStart.current.x,
+      y: e.clientY - dragStart.current.y,
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (isDragging.current) {
+      isDragging.current = false;
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore pointer capture errors if released
+      }
+    }
+  };
+
+  const handleOpenZoom = () => {
+    setZoomScale(1);
+    setPan({ x: 0, y: 0 });
+    setIsZoomModalOpen(true);
+  };
+
+  const handleCloseZoom = () => {
+    setIsZoomModalOpen(false);
+    setZoomScale(1);
+    setPan({ x: 0, y: 0 });
+  };
+
   const [flyerText, setFlyerText] = useState<string | null>(null);
   const [loadingFlyer, setLoadingFlyer] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -91,47 +136,148 @@ export const DogDetailModal: React.FC<DogDetailModalProps> = ({
     }, 2000);
   };
 
+  const facePhoto = report.facePhotoUrl || report.tempFacePhoto || (report.species === 'GATO' ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&auto=format&fit=crop&q=80');
+  const bodyPhoto = report.fullBodyPhotoUrl || report.photoUrl || report.tempDogPhoto || (report.species === 'GATO' ? 'https://images.unsplash.com/photo-1513360309081-38f076278f19?w=800&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=800&auto=format&fit=crop&q=80');
+  const hasTwoPhotos = Boolean(facePhoto && bodyPhoto && facePhoto !== bodyPhoto);
+  const activePhoto = photoTab === 'FACE' ? facePhoto : bodyPhoto;
+
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-white border border-amber-200 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 my-8">
-        <div className="relative h-64 w-full bg-amber-100">
+        {/* Photo Container with Face / Body Selector and Zoom Option */}
+        <div className="relative h-72 sm:h-80 w-full bg-slate-950 overflow-hidden group">
           <img
-            src={report.dogId ? (report.species === 'GATO' ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&auto=format&fit=crop&q=80') : report.tempDogPhoto}
+            src={activePhoto}
             alt={report.dogName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 cursor-pointer"
+            onClick={handleOpenZoom}
+            title="Toca para ampliar foto"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-black/30"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-black/40 pointer-events-none"></div>
 
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-slate-700 hover:text-slate-900 transition-colors shadow-md"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {/* Top Left: 2-Photos Thumbnails (2nd photo thumbnail stacked underneath 1st) */}
+          {hasTwoPhotos ? (
+            <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+              <button
+                type="button"
+                onClick={() => setPhotoTab('FACE')}
+                className={`relative w-14 h-14 rounded-2xl overflow-hidden border-2 transition-all shadow-lg ${
+                  photoTab === 'FACE'
+                    ? 'border-amber-400 ring-2 ring-amber-400/70 scale-105'
+                    : 'border-white/60 opacity-80 hover:opacity-100 hover:scale-100 bg-black/40'
+                }`}
+                title="Ver foto: Solo Rostro"
+              >
+                <img src={facePhoto} alt="Rostro" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[8px] text-white font-extrabold text-center py-0.5 leading-none">
+                  Rostro
+                </span>
+              </button>
 
+              <button
+                type="button"
+                onClick={() => setPhotoTab('BODY')}
+                className={`relative w-14 h-14 rounded-2xl overflow-hidden border-2 transition-all shadow-lg ${
+                  photoTab === 'BODY'
+                    ? 'border-amber-400 ring-2 ring-amber-400/70 scale-105'
+                    : 'border-white/60 opacity-80 hover:opacity-100 hover:scale-100 bg-black/40'
+                }`}
+                title="Ver foto: Cuerpo Entero"
+              >
+                <img src={bodyPhoto} alt="Cuerpo" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[8px] text-white font-extrabold text-center py-0.5 leading-none">
+                  Cuerpo
+                </span>
+              </button>
+            </div>
+          ) : (
+            <div className="absolute top-4 left-4 z-10">
+              <span className="px-3 py-1 rounded-xl bg-black/60 text-white text-xs font-bold backdrop-blur-md border border-white/20">
+                📷 Foto de Mascota
+              </span>
+            </div>
+          )}
+
+          {/* Top Right: Zoom Option & Close Button */}
+          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+            <button
+              onClick={handleOpenZoom}
+              className="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white backdrop-blur-md flex items-center gap-1.5 text-xs font-black text-slate-800 transition-all shadow-md hover:scale-105 active:scale-95"
+              title="Ampliar foto / Zoom"
+            >
+              <ZoomIn className="w-4 h-4 text-amber-600" />
+              <span>Zoom</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-full bg-white/90 hover:bg-white backdrop-blur-md flex items-center justify-center text-slate-700 hover:text-slate-900 transition-colors shadow-md"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Bottom Title & Status */}
           <div className="absolute bottom-4 left-6 right-6">
             <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider ${
               report.status === 'LOST' ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-amber-100 text-amber-800 border border-amber-200'
             }`}>
               {report.status === 'LOST' ? 'Perdido' : 'Encontrado'}
             </span>
-            <h2 className="text-2xl font-black text-white mt-1 flex items-center gap-2">
+            <h2 className="text-2xl font-black text-white mt-1 flex items-center gap-2 drop-shadow-md">
               <span>{report.species === 'GATO' ? '🐱' : '🐶'}</span>
               <span>{report.dogName || 'Mascota'}</span>
+              <span className="text-xs font-bold text-amber-300 ml-1">
+                ({photoTab === 'FACE' ? 'Solo Rostro' : 'Cuerpo Entero'})
+              </span>
             </h2>
           </div>
         </div>
 
-        <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto bg-amber-50/30">
+        <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto bg-amber-50/30">
+          {/* Address / Location & Time Banner with Donde and Cuando strictly aligned on same level */}
+          <div className="bg-white p-4 rounded-2xl border border-amber-200 shadow-sm">
+            <div className="flex items-start gap-2.5 text-xs">
+              <MapPin className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0 space-y-2">
+                {/* Donde */}
+                <div className="flex items-start gap-2">
+                  <span className="font-extrabold text-slate-900 shrink-0 w-16">Donde:</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-bold text-slate-800">
+                      {report.lastKnownLocation.addressText || report.lastKnownLocation.neighborhood}
+                    </span>
+                    {report.lastKnownLocation.crossStreets && (
+                      <span className="block text-xs font-semibold text-amber-900 mt-0.5">
+                        {report.lastKnownLocation.crossStreets}
+                      </span>
+                    )}
+                    <span className="block text-[11px] text-slate-500 font-medium mt-0.5">
+                      Barrio / Localidad: {report.lastKnownLocation.neighborhood}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Cuando: exactly same level / width as Donde */}
+                <div className="flex items-baseline gap-2 pt-1.5 border-t border-amber-100">
+                  <span className="font-extrabold text-slate-900 shrink-0 w-16">Cuando:</span>
+                  <span className="font-semibold text-slate-800">
+                    {formatReportDateTime(report.createdAt)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="bg-white p-3 rounded-2xl border border-amber-200 shadow-sm">
               <span className="text-[10px] font-bold text-slate-400 block">RAZA</span>
               <span className="text-xs font-extrabold text-slate-800 truncate block mt-0.5">{report.breed || 'Mestizo'}</span>
             </div>
             <div className="bg-white p-3 rounded-2xl border border-amber-200 shadow-sm">
-              <span className="text-[10px] font-bold text-slate-400 block">ZONA (URUGUAY)</span>
-              <span className="text-xs font-extrabold text-amber-700 truncate block mt-0.5">{report.lastKnownLocation.neighborhood}</span>
+              <span className="text-[10px] font-bold text-slate-400 block">RADIO ALERTA</span>
+              <span className="text-xs font-extrabold text-amber-700 truncate block mt-0.5">{report.radiusKm} km</span>
             </div>
             <div className="bg-white p-3 rounded-2xl border border-amber-200 shadow-sm col-span-2 sm:col-span-1">
               <span className="text-[10px] font-bold text-slate-400 block">RECOMPENSA</span>
@@ -203,16 +349,6 @@ export const DogDetailModal: React.FC<DogDetailModalProps> = ({
               </div>
             )}
           </div>
-
-          <div className="flex items-center gap-3 pt-2">
-            <a
-              href={`tel:${report.contactPhone}`}
-              className="flex-1 h-12 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-amber-600/25 transition-all"
-            >
-              <Phone className="w-4 h-4" />
-              <span>Contactar Dueño: {report.contactPhone}</span>
-            </a>
-          </div>
         </div>
 
         {showSightingModal && (
@@ -281,7 +417,7 @@ export const DogDetailModal: React.FC<DogDetailModalProps> = ({
                       className="w-full bg-slate-50 border border-amber-200 rounded-2xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"
                     >
                       <option value="Joaquín Rodríguez">Joaquín Rodríguez (+50 ★)</option>
-                      <option value="Violencia RIvas">Violencia RIvas (+50 ★)</option>
+                      <option value="Ana Suarez">Ana Suarez (+50 ★)</option>
                       <option value="Refugio Montevideo Amigo">Refugio Montevideo Amigo (+50 ★)</option>
                     </select>
                   </div>
@@ -297,6 +433,98 @@ export const DogDetailModal: React.FC<DogDetailModalProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Simple Photo Lightbox (No text, fits properly on mobile, + / - on top left, X outside photo on top right) */}
+        {isZoomModalOpen && (
+          <div
+            className="fixed inset-0 z-70 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-in fade-in select-none"
+            onClick={handleCloseZoom}
+          >
+            {/* Top Left: Small + and - icons to increase or decrease zoom */}
+            <div
+              className="fixed top-4 left-4 sm:top-6 sm:left-6 z-80 flex items-center gap-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setZoomScale((prev) => Math.min(Number((prev + 0.35).toFixed(2)), 3.5));
+                }}
+                disabled={zoomScale >= 3.5}
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/20 hover:bg-white/35 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-2xl backdrop-blur-md border border-white/30 transition cursor-pointer"
+                aria-label="Aumentar zoom"
+                title="Aumentar zoom (+)"
+              >
+                <Plus className="w-5 h-5 stroke-[2.5]" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setZoomScale((prev) => {
+                    const next = Math.max(Number((prev - 0.35).toFixed(2)), 1);
+                    if (next <= 1) setPan({ x: 0, y: 0 });
+                    return next;
+                  });
+                }}
+                disabled={zoomScale <= 1}
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/20 hover:bg-white/35 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-2xl backdrop-blur-md border border-white/30 transition cursor-pointer"
+                aria-label="Reducir zoom"
+                title="Reducir zoom (-)"
+              >
+                <Minus className="w-5 h-5 stroke-[2.5]" />
+              </button>
+            </div>
+
+            {/* X Close Button positioned outside the photo on top right */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCloseZoom();
+              }}
+              className="fixed top-4 right-4 sm:top-6 sm:right-6 z-80 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/20 hover:bg-white/35 active:scale-90 text-white flex items-center justify-center shadow-2xl backdrop-blur-md border border-white/30 transition cursor-pointer"
+              aria-label="Cerrar"
+              title="Cerrar"
+            >
+              <X className="w-6 h-6 stroke-[2.5]" />
+            </button>
+
+            {/* Photo Container - Clean, fitted properly for mobile, zero text */}
+            <div
+              className="relative max-h-full max-w-full flex items-center justify-center overflow-visible"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={activePhoto}
+                alt=""
+                style={{
+                  transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoomScale})`,
+                  transition: isDragging.current ? 'none' : 'transform 200ms ease-out',
+                  transformOrigin: 'center center',
+                }}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  if (zoomScale > 1) {
+                    setZoomScale(1);
+                    setPan({ x: 0, y: 0 });
+                  } else {
+                    setZoomScale(2);
+                  }
+                }}
+                className={`max-h-[82vh] max-w-[88vw] sm:max-h-[88vh] sm:max-w-[85vw] object-contain rounded-2xl shadow-2xl select-none touch-none ${
+                  zoomScale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+                }`}
+                referrerPolicy="no-referrer"
+                draggable={false}
+              />
             </div>
           </div>
         )}

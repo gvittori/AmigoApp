@@ -27,7 +27,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   const [dogName, setDogName] = useState(userDogs[0]?.name || '');
   const [breed, setBreed] = useState(DOG_BREEDS[0]);
   const [neighborhood, setNeighborhood] = useState('Pocitos, Montevideo');
-  const [addressText, setAddressText] = useState('Rambla y Bv. España');
+  const [addressText, setAddressText] = useState('Rambla República del Perú 1150');
+  const [crossStreets, setCrossStreets] = useState('entre Bv. España y Gabriel Pereira');
   const [lat, setLat] = useState(-34.9128);
   const [lng, setLng] = useState(-56.1511);
   const [radiusKm, setRadiusKm] = useState(5.0); // Default 5 km radius
@@ -108,10 +109,11 @@ export const ReportModal: React.FC<ReportModalProps> = ({
         lng,
         neighborhood,
         addressText,
+        crossStreets: crossStreets.trim() ? crossStreets.trim() : undefined,
       },
       radiusKm,
       createdAt: new Date().toISOString(),
-      updatedBy: 'Violencia RIvas',
+      updatedBy: 'Ana Suarez',
       description,
       contactPhone,
       rewardAmount: reportType === 'MY_DOG' ? Number(rewardAmount) : undefined,
@@ -338,15 +340,29 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Calle / Referencia</label>
-              <input
-                type="text"
-                required
-                value={addressText}
-                onChange={(e) => setAddressText(e.target.value)}
-                className="w-full bg-slate-50 border border-amber-200 rounded-2xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Dirección (Calle y número o intersección)</label>
+                <input
+                  type="text"
+                  required
+                  value={addressText}
+                  onChange={(e) => setAddressText(e.target.value)}
+                  placeholder="Ej. Rambla República del Perú 1150"
+                  className="w-full bg-slate-50 border border-amber-200 rounded-2xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Entre calles (Calles transversales)</label>
+                <input
+                  type="text"
+                  value={crossStreets}
+                  onChange={(e) => setCrossStreets(e.target.value)}
+                  placeholder="Ej. entre Bv. España y Gabriel Pereira"
+                  className="w-full bg-slate-50 border border-amber-200 rounded-2xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

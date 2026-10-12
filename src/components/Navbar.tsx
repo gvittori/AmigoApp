@@ -1,6 +1,7 @@
 import React from 'react';
 import { UserProfile } from '../types/amigo';
-import { Award, ShieldAlert } from 'lucide-react';
+import { Award } from 'lucide-react';
+import logoAmigo from '../assets/images/logoAmigo.jpg';
 
 interface NavbarProps {
   currentUser: UserProfile;
@@ -15,9 +16,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-amber-200/60 px-4 py-3 flex items-center justify-between shadow-sm">
       {/* Zone 1: Brand Wordmark */}
       <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
-          <ShieldAlert className="w-5 h-5 text-white" />
-        </div>
+        <img
+          src={logoAmigo}
+          alt="AMIGO"
+          className="w-10 h-10 rounded-2xl object-cover shadow-md border border-amber-200"
+        />
         <div>
           <h1 className="text-lg font-extrabold tracking-tight text-slate-900 flex items-center gap-1.5">
             AMIGO

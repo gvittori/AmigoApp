@@ -1,5 +1,4 @@
 import { UserProfile, DogProfile, LostDogReport } from '../types/amigo';
-import violenciaRivasAvatar from '../assets/images/violenciaRivas.jpg';
 
 export const DOG_BREEDS = [
   'Golden Retriever',
@@ -12,6 +11,7 @@ export const DOG_BREEDS = [
   'Boxer',
   'Cocker Spaniel',
   'Mestizo / Criollo',
+  'Otro'
 ];
 
 export const CAT_BREEDS = [
@@ -23,15 +23,16 @@ export const CAT_BREEDS = [
   'British Shorthair',
   'Ragdoll',
   'Scottish Fold',
+  'Otro'
 ];
 
 export const MOCK_USERS: UserProfile[] = [
   {
     id: 'usr-1',
-    username: 'Violencia RIvas',
+    username: 'Ana Suarez',
     phone: '+598 99 419 883',
     score: 380,
-    avatarUrl: violenciaRivasAvatar,
+    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
     neighborhood: 'Pocitos, Montevideo',
   },
   {
@@ -54,7 +55,8 @@ export const MOCK_DOGS: DogProfile[] = [
     age: '3 años',
     takesMedication: true,
     isAggressive: false,
-    photoUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&auto=format&fit=crop&q=80',
+    facePhotoUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&auto=format&fit=crop&q=80',
+    photoUrl: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=800&auto=format&fit=crop&q=80',
     noseprintId: 'NP-MVD-8491',
     color: 'Dorado Claro',
     gender: 'Macho',
@@ -68,7 +70,8 @@ export const MOCK_DOGS: DogProfile[] = [
     age: '2 años',
     takesMedication: false,
     isAggressive: false,
-    photoUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&auto=format&fit=crop&q=80',
+    facePhotoUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop&q=80',
+    photoUrl: 'https://images.unsplash.com/photo-1513360309081-38f076278f19?w=800&auto=format&fit=crop&q=80',
     noseprintId: 'NP-CAR-3320',
     color: 'Beige y Marrón',
     gender: 'Hembra',
@@ -82,7 +85,8 @@ export const MOCK_DOGS: DogProfile[] = [
     age: '1 año',
     takesMedication: false,
     isAggressive: false,
-    photoUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop&q=80',
+    facePhotoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&auto=format&fit=crop&q=80',
+    photoUrl: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&auto=format&fit=crop&q=80',
     noseprintId: 'NP-PVR-1092',
     color: 'Negro y Canela',
     gender: 'Macho',
@@ -96,15 +100,18 @@ export const MOCK_REPORTS: LostDogReport[] = [
     reportType: 'MY_DOG',
     status: 'LOST',
     species: 'PERRO',
+    facePhotoUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&auto=format&fit=crop&q=80',
+    fullBodyPhotoUrl: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=800&auto=format&fit=crop&q=80',
     lastKnownLocation: {
       lat: -34.9128,
       lng: -56.1511,
       neighborhood: 'Pocitos, Montevideo',
-      addressText: 'Rambla República del Perú y Bv. España',
+      addressText: 'Rambla República del Perú 1150',
+      crossStreets: 'entre Bv. España y Gabriel Pereira',
     },
     radiusKm: 2.0,
     createdAt: '2026-09-29T14:30:00Z',
-    updatedBy: 'Violencia RIvas',
+    updatedBy: 'Ana Suarez',
     description: 'Se asustó con la tormenta y corrió hacia la playa. Requiere pastillas diarias para el corazón. Es muy amigable.',
     contactPhone: '+598 99 419 883',
     rewardAmount: 3500,
@@ -119,11 +126,14 @@ export const MOCK_REPORTS: LostDogReport[] = [
     reportType: 'MY_DOG',
     status: 'LOST',
     species: 'GATO',
+    facePhotoUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop&q=80',
+    fullBodyPhotoUrl: 'https://images.unsplash.com/photo-1513360309081-38f076278f19?w=800&auto=format&fit=crop&q=80',
     lastKnownLocation: {
       lat: -34.8826,
       lng: -56.0533,
       neighborhood: 'Carrasco, Montevideo',
-      addressText: 'Arocena y Costa Rica',
+      addressText: 'Av. Arocena 1580',
+      crossStreets: 'entre Costa Rica y Schroeder',
     },
     radiusKm: 1.5,
     createdAt: '2026-09-29T18:00:00Z',
@@ -138,7 +148,10 @@ export const MOCK_REPORTS: LostDogReport[] = [
   },
   {
     id: 'rep-3',
-    tempDogPhoto: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=600&auto=format&fit=crop&q=80',
+    facePhotoUrl: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=800&auto=format&fit=crop&q=80',
+    fullBodyPhotoUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&auto=format&fit=crop&q=80',
+    tempFacePhoto: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=800&auto=format&fit=crop&q=80',
+    tempDogPhoto: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&auto=format&fit=crop&q=80',
     reportType: 'FOUND_DOG',
     status: 'FOUND',
     species: 'PERRO',
@@ -146,7 +159,8 @@ export const MOCK_REPORTS: LostDogReport[] = [
       lat: -34.9150,
       lng: -56.1600,
       neighborhood: 'Punta Carretas, Montevideo',
-      addressText: 'Ellauri y Solís',
+      addressText: 'José Ellauri 350',
+      crossStreets: 'entre Solís y Joaquín Núñez',
     },
     radiusKm: 1.0,
     createdAt: '2026-09-29T20:15:00Z',

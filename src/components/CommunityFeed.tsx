@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LostDogReport } from '../types/amigo';
-import { MapPin, Search, Phone, ShieldAlert, Heart, List, Map as MapIcon } from 'lucide-react';
+import { LostDogReport, formatReportDateTime } from '../types/amigo';
+import { MapPin, Search, ShieldAlert, Heart, List, Map as MapIcon } from 'lucide-react';
 
 declare const L: any;
 
@@ -191,32 +191,77 @@ export const CommunityFeed: React.FC<CommunityFeedProps> = ({
         </button>
       </div>
 
-      {/* Species filter chips */}
-      <div className="relative z-10 flex items-center gap-2 mb-6">
-        <button
-          onClick={() => setSpeciesFilter('ALL')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
-            speciesFilter === 'ALL' ? 'bg-slate-900 text-white shadow-md' : 'bg-white/80 backdrop-blur-md text-slate-700 border border-amber-200 hover:bg-white'
-          }`}
-        >
-          🐾 Todas
-        </button>
-        <button
-          onClick={() => setSpeciesFilter('PERRO')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
-            speciesFilter === 'PERRO' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md' : 'bg-white/80 backdrop-blur-md text-slate-700 border border-amber-200 hover:bg-white'
-          }`}
-        >
-          🐶 Perros
-        </button>
-        <button
-          onClick={() => setSpeciesFilter('GATO')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
-            speciesFilter === 'GATO' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md' : 'bg-white/80 backdrop-blur-md text-slate-700 border border-amber-200 hover:bg-white'
-          }`}
-        >
-          🐱 Gatos
-        </button>
+      {/* Filters: Status (Perdidas / Encontradas) and Species */}
+      <div className="relative z-10 flex flex-col gap-2.5 mb-6 bg-white/70 backdrop-blur-md p-3.5 rounded-2xl border border-amber-200/70 shadow-sm">
+        {/* Status Filter: Todas, Perdidas, Encontradas */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-extrabold text-slate-700 mr-1">Estado:</span>
+          <button
+            onClick={() => setTypeFilter('ALL')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
+              typeFilter === 'ALL'
+                ? 'bg-slate-900 text-white shadow-md'
+                : 'bg-white text-slate-700 border border-amber-200 hover:bg-amber-50'
+            }`}
+          >
+            Todas las alertas
+          </button>
+          <button
+            onClick={() => setTypeFilter('LOST')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
+              typeFilter === 'LOST'
+                ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30'
+                : 'bg-white text-rose-700 border border-rose-200 hover:bg-rose-50'
+            }`}
+          >
+            🚨 Perdidas
+          </button>
+          <button
+            onClick={() => setTypeFilter('FOUND')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
+              typeFilter === 'FOUND'
+                ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30'
+                : 'bg-white text-amber-800 border border-amber-200 hover:bg-amber-50'
+            }`}
+          >
+            🎉 Encontradas
+          </button>
+        </div>
+
+        {/* Species Filter: Todas, Perros, Gatos */}
+        <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-amber-100">
+          <span className="text-xs font-extrabold text-slate-700 mr-1">Especie:</span>
+          <button
+            onClick={() => setSpeciesFilter('ALL')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
+              speciesFilter === 'ALL'
+                ? 'bg-slate-900 text-white shadow-md'
+                : 'bg-white text-slate-700 border border-amber-200 hover:bg-amber-50'
+            }`}
+          >
+            🐾 Todas
+          </button>
+          <button
+            onClick={() => setSpeciesFilter('PERRO')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
+              speciesFilter === 'PERRO'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
+                : 'bg-white text-slate-700 border border-amber-200 hover:bg-amber-50'
+            }`}
+          >
+            🐶 Perros
+          </button>
+          <button
+            onClick={() => setSpeciesFilter('GATO')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all shadow-sm ${
+              speciesFilter === 'GATO'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
+                : 'bg-white text-slate-700 border border-amber-200 hover:bg-amber-50'
+            }`}
+          >
+            🐱 Gatos
+          </button>
+        </div>
       </div>
 
       {viewMode === 'list' ? (
@@ -243,42 +288,97 @@ export const CommunityFeed: React.FC<CommunityFeedProps> = ({
                   onClick={() => onSelectReport(report)}
                   className="bg-white/90 hover:bg-white backdrop-blur-xl border border-amber-200/80 hover:border-orange-400 rounded-3xl p-5 transition-all cursor-pointer group shadow-lg shadow-amber-500/5 hover:shadow-xl hover:-translate-y-0.5"
                 >
-                  <div className="flex flex-col sm:flex-row items-start gap-4">
-                    <div className="relative w-full sm:w-32 h-36 rounded-2xl overflow-hidden border-2 border-amber-100 shrink-0 bg-amber-50 shadow-inner">
-                      <img
-                        src={report.dogId ? (report.species === 'GATO' ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&auto=format&fit=crop&q=80') : report.tempDogPhoto}
-                        alt={report.dogName}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute top-2 left-2 flex gap-1">
-                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full backdrop-blur-md shadow-md ${
-                          report.status === 'LOST' ? 'bg-rose-600 text-white shadow-rose-500/30' : 'bg-amber-500 text-white shadow-amber-500/30'
-                        }`}>
-                          {report.status === 'LOST' ? 'Perdido' : 'Encontrado'}
-                        </span>
-                      </div>
-                    </div>
+                  {(() => {
+                    const firstPhoto = report.facePhotoUrl || report.tempFacePhoto || report.photoUrl || report.tempDogPhoto || (report.species === 'GATO' ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&auto=format&fit=crop&q=80');
+                    const secondPhoto = report.fullBodyPhotoUrl || (report.photoUrl && report.photoUrl !== firstPhoto ? report.photoUrl : undefined) || (report.tempDogPhoto && report.tempDogPhoto !== firstPhoto ? report.tempDogPhoto : undefined);
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <h3 className="text-lg font-black text-slate-900 group-hover:text-orange-600 transition-colors flex items-center gap-2">
-                          <span className="text-xl">{report.species === 'GATO' ? '🐱' : '🐶'}</span>
-                          <span>{report.dogName || 'Mascota'}</span>
-                        </h3>
-                        <span className="text-xs font-black text-orange-700 bg-orange-100/80 border border-orange-200 px-3 py-1 rounded-xl w-fit shadow-sm">
-                          📍 {distanceKm} km
-                        </span>
-                      </div>
+                    return (
+                      <div className="flex flex-col sm:flex-row items-start gap-4">
+                        {/* Photos Row: Next to each other (not underneath) */}
+                        <div className="flex flex-row items-center gap-2 shrink-0">
+                          <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-amber-300 bg-amber-50 shadow-inner group">
+                            <img
+                              src={firstPhoto}
+                              alt={report.dogName}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              referrerPolicy="no-referrer"
+                            />
+                            <div className="absolute top-1.5 left-1.5 flex gap-1">
+                              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full backdrop-blur-md shadow-md ${
+                                report.status === 'LOST' ? 'bg-rose-600 text-white shadow-rose-500/30' : 'bg-amber-500 text-white shadow-amber-500/30'
+                              }`}>
+                                {report.status === 'LOST' ? 'Perdido' : 'Encontrado'}
+                              </span>
+                            </div>
+                            {secondPhoto && (
+                              <span className="absolute bottom-1 inset-x-1 bg-black/60 text-[9px] text-white font-extrabold text-center rounded py-0.5 leading-none">
+                                Rostro
+                              </span>
+                            )}
+                          </div>
 
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 mt-2 font-medium">
-                        <span className="font-bold text-slate-800">{report.breed || 'Mestizo'}</span>
-                        <span aria-hidden="true" className="text-amber-400">·</span>
-                        <span className="flex items-center gap-1 text-orange-700 font-bold">
-                          <MapPin className="w-3.5 h-3.5 text-orange-600" />
-                          {report.lastKnownLocation.neighborhood}
-                        </span>
-                      </div>
+                          {secondPhoto && (
+                            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-amber-200 bg-amber-50 shadow-inner group">
+                              <img
+                                src={secondPhoto}
+                                alt={`${report.dogName} - Cuerpo`}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                referrerPolicy="no-referrer"
+                              />
+                              <span className="absolute bottom-1 inset-x-1 bg-black/60 text-[9px] text-white font-extrabold text-center rounded py-0.5 leading-none">
+                                Cuerpo
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <h3 className="text-lg font-black text-slate-900 group-hover:text-orange-600 transition-colors flex items-center gap-2">
+                              <span className="text-xl">{report.species === 'GATO' ? '🐱' : '🐶'}</span>
+                              <span>{report.dogName || 'Mascota'}</span>
+                            </h3>
+                            <span className="text-xs font-black text-orange-700 bg-orange-100/80 border border-orange-200 px-3 py-1 rounded-xl w-fit shadow-sm">
+                              📍 {distanceKm} km
+                            </span>
+                          </div>
+
+                          {/* Address and Cross Streets with aligned Donde & Cuando */}
+                          <div className="mt-2.5 p-3 rounded-2xl bg-amber-50/80 border border-amber-200/70">
+                            <div className="flex items-start gap-2.5 text-xs">
+                              <MapPin className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                              <div className="flex-1 min-w-0 space-y-1.5">
+                                {/* Donde */}
+                                <div className="flex items-start gap-2">
+                                  <span className="font-extrabold text-slate-900 shrink-0 w-16">Donde:</span>
+                                  <div className="flex-1 min-w-0">
+                                    <span className="font-semibold text-slate-800">
+                                      {report.lastKnownLocation.addressText || report.lastKnownLocation.neighborhood}
+                                    </span>
+                                    {report.lastKnownLocation.crossStreets && (
+                                      <span className="block text-xs text-amber-900 font-semibold mt-0.5">
+                                        {report.lastKnownLocation.crossStreets}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Cuando: aligned on exact same level as Donde */}
+                                <div className="flex items-baseline gap-2 pt-1 border-t border-amber-200/50">
+                                  <span className="font-extrabold text-slate-900 shrink-0 w-16">Cuando:</span>
+                                  <span className="font-semibold text-slate-800">
+                                    {formatReportDateTime(report.createdAt)}
+                                  </span>
+                                </div>
+
+                                <div className="text-[11px] text-slate-500 font-medium flex items-center gap-2 pt-0.5">
+                                  <span>Barrio: {report.lastKnownLocation.neighborhood}</span>
+                                  <span aria-hidden="true" className="text-amber-400">·</span>
+                                  <span className="font-bold text-slate-700">{report.breed || 'Mestizo'}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
 
                       <p className="text-xs text-slate-600 mt-3 line-clamp-2 leading-relaxed font-normal">
                         {report.description}
@@ -300,19 +400,14 @@ export const CommunityFeed: React.FC<CommunityFeedProps> = ({
                           Reportado por {report.updatedBy}
                         </span>
 
-                        <div className="flex items-center gap-2">
-                          <a
-                            href={`tel:${report.contactPhone}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-md shadow-orange-500/20"
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                            <span>Contactar Dueño</span>
-                          </a>
+                        <span className="px-3.5 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl text-xs font-extrabold transition-colors">
+                          Ver reporte completo →
+                        </span>
+                      </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                    );
+                  })()}
                 </div>
               );
             })

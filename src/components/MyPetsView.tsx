@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DogProfile, UserProfile, PetSpecies } from '../types/amigo';
 import { DOG_BREEDS, CAT_BREEDS } from '../data/mockData';
-import { Award, Plus, Phone, AlertTriangle, Pill, ShieldCheck, ChevronRight, Check } from 'lucide-react';
+import { Award, Plus, Phone, AlertTriangle, Pill, ShieldCheck, ChevronRight, Check, X, Camera } from 'lucide-react';
 import { Input } from './ui/Input';
 import { Switch } from './ui/Switch';
 import { Button } from './ui/Button';
@@ -45,7 +45,8 @@ export const MyPetsView: React.FC<MyPetsViewProps> = ({
       age: newAge,
       takesMedication: takesMeds,
       isAggressive,
-      photoUrl: species === 'PERRO' ? 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&auto=format&fit=crop&q=80',
+      facePhotoUrl: species === 'PERRO' ? 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop&q=80',
+      photoUrl: species === 'PERRO' ? 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=800&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1513360309081-38f076278f19?w=800&auto=format&fit=crop&q=80',
       noseprintId: `NP-MVD-${Math.floor(1000 + Math.random() * 9000)}`,
       color: species === 'PERRO' ? 'Dorado' : 'Beige',
       gender: 'Macho',
@@ -111,56 +112,89 @@ export const MyPetsView: React.FC<MyPetsViewProps> = ({
       </div>
 
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {userDogs.map((dog) => (
-          <Card key={dog.id} className="relative overflow-hidden group bg-white/90 backdrop-blur-xl border border-amber-200/80 shadow-lg shadow-amber-500/5 hover:shadow-xl transition-all">
-            <div className="flex items-start gap-4">
-              <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-amber-200 shrink-0 bg-amber-50 shadow-inner">
-                <img
-                  src={dog.photoUrl}
-                  alt={dog.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
+        {userDogs.map((dog) => {
+          const face = dog.facePhotoUrl || dog.photoUrl;
+          const body = dog.photoUrl;
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-base font-black text-slate-900 truncate flex items-center gap-1.5">
-                    <span>{dog.species === 'GATO' ? '🐱' : '🐶'}</span>
-                    <span>{dog.name}</span>
-                  </h4>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200 font-bold">
-                    {dog.noseprintId}
-                  </span>
-                </div>
-
-                <div className="text-xs text-slate-600 mt-1 font-medium">
-                  <span>{dog.breed}</span> · <span>{dog.age}</span>
-                </div>
-
-                {/* Warning tags & badges */}
-                <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                  {dog.takesMedication && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg bg-purple-100 text-purple-900 border border-purple-200 shadow-sm">
-                      <Pill className="w-3 h-3 text-purple-700" />
-                      Medicamento diario
+          return (
+            <Card key={dog.id} className="relative overflow-hidden group bg-white/90 backdrop-blur-xl border border-amber-200/80 shadow-lg shadow-amber-500/5 hover:shadow-xl transition-all p-4">
+              <div className="flex items-start gap-4">
+                {/* 2 Photos Column: Face & Full Body */}
+                <div className="flex flex-col gap-2 shrink-0">
+                  <div className="relative w-18 h-18 rounded-2xl overflow-hidden border-2 border-amber-300 bg-amber-50 shadow-sm">
+                    <img
+                      src={face}
+                      alt={`${dog.name} - Rostro`}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <span className="absolute bottom-1 left-1 right-1 bg-black/60 backdrop-blur-xs text-[9px] text-white font-extrabold text-center rounded py-0.5">
+                      Rostro
                     </span>
-                  )}
-                  {dog.isAggressive && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg bg-rose-100 text-rose-900 border border-rose-200 animate-pulse shadow-sm">
-                      <AlertTriangle className="w-3 h-3 text-rose-700" />
-                      Precaución / Asustadizo
+                  </div>
+
+                  <div className="relative w-18 h-18 rounded-2xl overflow-hidden border-2 border-amber-200 bg-amber-50 shadow-sm">
+                    <img
+                      src={body}
+                      alt={`${dog.name} - Cuerpo`}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <span className="absolute bottom-1 left-1 right-1 bg-black/60 backdrop-blur-xs text-[9px] text-white font-extrabold text-center rounded py-0.5">
+                      Cuerpo
                     </span>
-                  )}
-                  <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-200 shadow-sm">
-                    <ShieldCheck className="w-3 h-3 text-amber-700" />
-                    Huella Nasal Activa
-                  </span>
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-base font-black text-slate-900 truncate flex items-center gap-1.5">
+                      <span>{dog.species === 'GATO' ? '🐱' : '🐶'}</span>
+                      <span>{dog.name}</span>
+                    </h4>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200 font-bold">
+                      {dog.noseprintId}
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-slate-600 mt-1 font-medium">
+                    <span>{dog.breed}</span> · <span>{dog.age}</span>
+                  </div>
+
+                  {/* Warning tags & badges */}
+                  <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                    {dog.takesMedication && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg bg-purple-100 text-purple-900 border border-purple-200 shadow-sm">
+                        <Pill className="w-3 h-3 text-purple-700" />
+                        Medicamento
+                      </span>
+                    )}
+                    {dog.isAggressive && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg bg-rose-100 text-rose-900 border border-rose-200 shadow-sm">
+                        <AlertTriangle className="w-3 h-3 text-rose-700" />
+                        Precaución
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-200 shadow-sm">
+                      <ShieldCheck className="w-3 h-3 text-amber-700" />
+                      Huella Activa
+                    </span>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-amber-100 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-amber-600" />
+                      2 fotos registradas (rostro y cuerpo)
+                    </span>
+                    <span className="text-[10px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-lg">
+                      Verificado
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
       </div>
 
       {/* Progressive Disclosure Modal for Registering/Editing Pet Profile */}
