@@ -1,9 +1,9 @@
 import React from 'react';
-import { MapPin, Radio, PlusCircle, Heart, Bot } from 'lucide-react';
+import { MapPin, Radio, PlusCircle, Heart, Users, Building2, Bot } from 'lucide-react';
 
 interface BottomNavProps {
-  activeTab: 'map' | 'feed' | 'report' | 'mypets' | 'assistant';
-  setActiveTab: (tab: 'map' | 'feed' | 'report' | 'mypets' | 'assistant') => void;
+  activeTab: 'map' | 'feed' | 'report' | 'mypets' | 'community' | 'businesses' | 'assistant';
+  setActiveTab: (tab: 'map' | 'feed' | 'report' | 'mypets' | 'community' | 'businesses' | 'assistant') => void;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({
@@ -13,14 +13,16 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const tabs = [
     { id: 'map', label: 'Mapa', icon: MapPin },
     { id: 'feed', label: 'Reportes', icon: Radio },
-    { id: 'report', label: 'Reportar', icon: PlusCircle, isAction: true },
     { id: 'mypets', label: 'Mis Mascotas', icon: Heart },
+    { id: 'report', label: 'Reportar', icon: PlusCircle, isAction: true },
+    { id: 'community', label: 'Comunidad', icon: Users },
+    { id: 'businesses', label: 'Negocios', icon: Building2 },
     { id: 'assistant', label: 'Asistente IA', icon: Bot },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-amber-200/80 pb-safe shadow-lg">
-      <div className="grid grid-cols-5 items-center h-16 px-2 max-w-lg mx-auto">
+      <div className="grid grid-cols-7 items-center h-16 px-1 max-w-2xl mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -30,10 +32,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <div key={tab.id} className="flex justify-center -mt-6">
                 <button
                   onClick={() => setActiveTab('report')}
-                  className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 to-rose-600 text-white flex items-center justify-center shadow-xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-transform focus:outline-none ring-4 ring-white"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-amber-500 to-rose-600 text-white flex items-center justify-center shadow-xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-transform focus:outline-none ring-4 ring-white"
                   title="Reportar Mascota"
                 >
-                  <Icon className="w-7 h-7" />
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7" />
                 </button>
               </div>
             );
@@ -47,8 +49,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 isActive ? 'text-amber-600 font-extrabold' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              <Icon className={`w-5 h-5 mb-1 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.75px]'}`} />
-              <span className="text-[10px] tracking-tight truncate max-w-[65px]">{tab.label}</span>
+              <Icon className={`w-4 h-4 sm:w-5 sm:h-5 mb-0.5 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.75px]'}`} />
+              <span className="text-[9px] sm:text-[10px] tracking-tighter truncate max-w-[50px] sm:max-w-[65px]">{tab.label}</span>
             </button>
           );
         })}

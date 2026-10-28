@@ -4,13 +4,18 @@ export type DogStatus = 'LOST' | 'FOUND' | 'RESOLVED';
 
 export type PetSpecies = 'PERRO' | 'GATO';
 
+export type UserRole = 'estandar' | 'Negocio' | 'Admin';
+
 export interface UserProfile {
   id: string;
+  email: string;
   username: string;
+  role: UserRole;
   phone: string;
   score: number; // rescue stars / points
   avatarUrl: string;
   neighborhood: string;
+  password?: string;
 }
 
 export interface DogProfile {
